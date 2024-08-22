@@ -6,10 +6,13 @@ import * as yup from "yup";
 import { notiValication } from "../../common/notiValication";
 import { authService } from "../../services/auth.service";
 import { NotificationContext } from "../../App";
+import { useNavigate } from "react-router-dom";
+import { pathDefault } from "../../common/path";
 
 const FormRegister = () => {
-  const notificationValue = useContext(NotificationContext);
-  console.log(notificationValue);
+  const { handleNotification } = useContext(NotificationContext);
+  const navigate = useNavigate();
+  // console.log(notificationValue);
   // NV1,thực hiện bóc tách ra các thuộc tính values,errors,handleChange,hangBlur,handleSubmit,touched để setup vào các field của form
   //NV2, thực hiện khai báo các initialValues sẽ có cho forrmik và thực hiện kiểm tra nhập dữ liệu vào xem onsubmit có lấy được dữ liệu tất cả form hay không
   //NV3, thực hiện xử lí validation cho các field của form đang có (validation tùy ý )
@@ -40,17 +43,28 @@ const FormRegister = () => {
         })
         .then((res) => {
           console.log(res);
+          // B1:Thuc hien thong bao cho nguoi dung
+          handleNotification(
+            "Chuc mung tao tai khoan thanh cong,ban se duoc chuyen huong ve trang dang nhap",
+            "success"
+          );
+          setTimeout(() => {
+            navigate(pathDefault.login);
+          }, 2000);
         })
         .catch((err) => {
           console.log(err);
-          notificationValue.handleNotification(err.response.data.content);
+          handleNotification(err.response.data.content, "error");
         });
     },
     validationSchema: yup.object({
       name: yup
         .string()
         .required(notiValication.empty)
-        .matches(/^[a-zA-Z\s]+$/, "Vui lòng nhập tên không chứa số "),
+        .matches(
+          /^([a-zA-ZÀ-ỹ]+)(\s[a-zA-ZÀ-ỹ]+)+$/,
+          "Vui lòng nhập tên không chứa số "
+        ),
       email: yup
         .string()
         .required(notiValication.empty)
